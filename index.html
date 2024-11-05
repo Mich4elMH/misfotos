@@ -5,10 +5,45 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Fotos Yule</title>
-</head>
-<body onload="iniNevada(100,80)" >
+    <title>Amor</title>
+    <link rel="shortcut icon" href="fotos/heart-like-icon-97481e.webp">
+
+    
+
    
+    
+        body {
+            overflow: hidden;
+            background-color: #001f3f; /* Azul oscuro */
+            font-family: Arial, sans-serif;
+            color: #fdf6e3;
+        }
+        section img {
+            max-width: 150px;
+            margin: 10px;
+        }
+        .falling-word {
+            position: absolute;
+            color: #ffcccb; /* Rosa claro */
+            font-size: 24px;
+            font-weight: bold;
+            animation: fall linear infinite;
+            pointer-events: none;
+        }
+        @keyframes fall {
+            0% {
+                top: -50px;
+                opacity: 1;
+            }
+            100% {
+                top: 100vh;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body onload="iniNevada(50, 80); startFallingWords()">
+
     <section>
         <img src="./fotos/Bestido.jpg">
         <img src="./fotos/Copaque gano.jpg">
@@ -16,11 +51,113 @@
         <img src="./fotos/Limacity.jpeg">
         <img src="./fotos/visita.jpg">
     </section>
-    <audio controls autoplay loop>
-    <source src="./music/Good blue.mp3">
-    <source src="./music/Tears For Fears - Shout.mp3"
-    </audio>
 
-    <script src="./javascript.js"></script>
+    <audio controls autoplay loop id="audio-player">
+        <source src="./music/Good blue.mp3" type="audio/mp3">
+        <source src="./music/Tears For Fears - Shout.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <button onclick="previousTrack()">Anterior</button>
+    <button onclick="nextTrack()">Siguiente</button>
+
+    <script>
+        // Lista de pistas de música
+        const tracks = [
+            "./music/Good blue.mp3",
+            "./music/Tears For Fears - Shout.mp3"
+        ];
+
+        let currentTrackIndex = 0;
+        const audioPlayer = document.getElementById('audio-player');
+    
+        // Configura el volumen al 20%
+        audioPlayer.volume = 0.2;
+    
+        // Función para actualizar la pista actual
+        function loadTrack(index) {
+            audioPlayer.src = tracks[index];
+            audioPlayer.play();
+        }
+    
+        // Función para ir a la pista anterior
+        function previousTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+            loadTrack(currentTrackIndex);
+        }
+    
+        // Función para ir a la pista siguiente
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+            loadTrack(currentTrackIndex);
+        }
+    
+        // Cargar la primera pista al iniciar
+        loadTrack(currentTrackIndex);
+
+        // Clase para manejar los copos de nieve (adaptado para palabras)
+        class oCopo {
+            constructor(tam, id, content) {
+                this.x = 0;
+                this.y = 0;
+                this.size = tam;
+                this.nombre = id;
+                this.obj = document.createElement("div");
+                this.obj.setAttribute('id', id);
+                this.obj.innerText = content;
+                this.obj.style.position = "absolute";
+                this.obj.style.fontSize = tam + "px";
+                this.obj.style.color = "#ffcccb"; // Color rosa claro
+                document.body.appendChild(this.obj);
+            }
+            dibujar(x, y) {
+                this.x = x;
+                this.y = y;
+                this.obj.style.top = this.y + "px";
+                this.obj.style.left = this.x + "px";
+            }
+        }
+
+        // Inicializar los copos de nieve (o palabras)
+        function iniCopos(num, anc, alto) {
+            const words = ["Amor", "Besos", "Abrazo", "Cariño", "Te Amo", "Eres Mi Todo", "Pasión", "Corazón"];
+            var copos = new Array(num);
+            var tam, x, y;
+            for (let i = 0; i < num; i++) {
+                tam = Math.round(Math.random() * 10) + 20;
+                const word = words[Math.floor(Math.random() * words.length)];
+                copos[i] = new oCopo(tam, "c" + i, word);
+                x = parseInt(Math.random() * anc);
+                y = parseInt(Math.random() * alto);
+                copos[i].dibujar(x, y);
+            }
+            return copos;
+        }
+
+        // Iniciar la nevada de palabras
+        function iniNevada(num, vel) {
+            var ancho = document.body.offsetWidth - 10;
+            var alto = window.innerHeight - 10;
+            var losCopos = iniCopos(num, ancho, alto);
+            nevar(losCopos, ancho, alto, vel);
+        }
+
+        // Animar la caída de las palabras
+        function nevar(copos, coposAncho, coposAlto, vel) {
+            var x, y;
+            for (let i = 0; i < copos.length; i++) {
+                y = copos[i].y;
+                x = copos[i].x;
+                y += parseInt(Math.random() * 3 + 1); // Caída de velocidad aleatoria
+                if (y >= (coposAlto - copos[i].size)) {
+                    y = Math.round(Math.random() * 10);
+                    x = parseInt(Math.random() * coposAncho - 1);
+                }
+                copos[i].dibujar(x, y);
+            }
+            setTimeout(nevar, vel, copos, coposAncho, coposAlto, vel);
+        }
+    </script>
+
 </body>
 </html>
